@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "PharmaConnect",
+    "slug": "pharma-connect",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Votre position permet d'afficher les pharmacies proches."
+      }
+    },
+    "android": {
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "adaptiveIcon": {
+        "backgroundColor": "#0F766E"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
