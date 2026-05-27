@@ -1,3 +1,6 @@
+export type Tab = "home" | "search" | "prescription" | "orders" | "profile";
+export type AuthMode = "login" | "register";
+
 export type PaymentMode = "online" | "pickup";
 
 export type StockLevel = "available" | "low" | "unavailable" | "prescription";
