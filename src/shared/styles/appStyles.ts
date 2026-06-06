@@ -10,8 +10,9 @@ export const styles = StyleSheet.create({
     flex: 1
   },
   content: {
-    padding: 20,
-    paddingBottom: 110
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 118
   },
   authScreen: {
     flex: 1,
@@ -113,7 +114,12 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
     marginBottom: 18
+  },
+  headerCopy: {
+    flex: 1,
+    paddingRight: 4
   },
   hello: {
     color: colors.muted,
@@ -121,9 +127,10 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     color: colors.ink,
-    fontSize: 23,
+    fontSize: 22,
     fontWeight: "800",
-    marginTop: 3
+    marginTop: 3,
+    lineHeight: 28
   },
   cartButton: {
     width: 48,
@@ -133,7 +140,8 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    flexShrink: 0
   },
   cartBadge: {
     position: "absolute",
@@ -579,6 +587,69 @@ export const styles = StyleSheet.create({
     marginTop: 14,
     overflow: "hidden"
   },
+  profileInfoCard: {
+    backgroundColor: colors.white,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.line,
+    padding: 14,
+    marginTop: 14
+  },
+  profileInfoHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 14
+  },
+  profileInfoIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: colors.mint,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  verifiedPill: {
+    minHeight: 32,
+    borderRadius: 8,
+    backgroundColor: colors.soft,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5
+  },
+  verifiedPillText: {
+    color: colors.tealDark,
+    fontWeight: "900",
+    fontSize: 12
+  },
+  profileGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  profileFact: {
+    width: "48%",
+    minHeight: 68,
+    borderRadius: 8,
+    backgroundColor: colors.slate,
+    borderWidth: 1,
+    borderColor: colors.line,
+    padding: 10,
+    justifyContent: "center"
+  },
+  profileFactLabel: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "800",
+    marginBottom: 5
+  },
+  profileFactValue: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "900",
+    lineHeight: 18
+  },
   settingRow: {
     minHeight: 56,
     flexDirection: "row",
@@ -609,32 +680,63 @@ export const styles = StyleSheet.create({
   },
   tabs: {
     position: "absolute",
-    left: 14,
-    right: 14,
-    bottom: 14,
-    height: 72,
+    left: 12,
+    right: 12,
+    minHeight: 72,
     borderRadius: 8,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.line,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+    paddingHorizontal: 6,
+    paddingVertical: 7,
     ...shadow
   },
   tabButton: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 4
+    gap: 3,
+    minWidth: 0,
+    height: 58,
+    borderRadius: 8
+  },
+  tabButtonActive: {
+    backgroundColor: colors.soft
+  },
+  tabIconWrap: {
+    minWidth: 28,
+    minHeight: 24,
+    alignItems: "center",
+    justifyContent: "center"
   },
   tabLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: colors.muted,
-    fontWeight: "800"
+    fontWeight: "800",
+    textAlign: "center"
   },
   tabLabelActive: {
     color: colors.tealDark
+  },
+  tabBadge: {
+    position: "absolute",
+    top: -4,
+    right: -8,
+    minWidth: 17,
+    height: 17,
+    borderRadius: 9,
+    backgroundColor: colors.red,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 4
+  },
+  tabBadgeText: {
+    color: colors.white,
+    fontSize: 10,
+    fontWeight: "900"
   }
 });
 

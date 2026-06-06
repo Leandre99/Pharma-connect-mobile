@@ -10,7 +10,7 @@ type AppHeaderProps = {
 export function AppHeader({ cartCount, onCartPress }: AppHeaderProps) {
   return (
     <View style={styles.header}>
-      <View>
+      <View style={styles.headerCopy}>
         <Text style={styles.hello}>Bonjour, Leandre</Text>
         <Text style={styles.headerTitle}>De quoi avez-vous besoin ?</Text>
       </View>

@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthScreen } from "../features/auth/screens/AuthScreen";
 import { HomeScreen } from "../features/home/screens/HomeScreen";
 import { OrdersScreen } from "../features/orders/screens/OrdersScreen";
@@ -11,24 +12,25 @@ import { styles } from "../shared/styles";
 import { AppHeader } from "./AppHeader";
 import { usePharmaConnectApp } from "./usePharmaConnectApp";
 
-export function AppShell() {
+function AppContent() {
   const app = usePharmaConnectApp();
+  const insets = useSafeAreaInsets();
 
   if (!app.auth.isAuthed) {
     return (
-      <>
+      <View style={[styles.safe, { paddingTop: insets.top }]}>
         <StatusBar style="dark" />
         <AuthScreen
           authMode={app.auth.authMode}
           setAuthMode={app.auth.setAuthMode}
           onSubmit={app.auth.login}
         />
-      </>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={[styles.safe, { paddingTop: insets.top + 8 }]}>
       <StatusBar style="dark" />
       <View style={styles.appShell}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -88,8 +90,18 @@ export function AppShell() {
         <BottomTabs
           activeTab={app.navigation.activeTab}
           setActiveTab={app.navigation.setActiveTab}
+          cartCount={app.orders.cart.length}
+          bottomInset={insets.bottom}
         />
       </View>
-    </SafeAreaView>
+    </View>
+  );
+}
+
+export function AppShell() {
+  return (
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
   );
 }
