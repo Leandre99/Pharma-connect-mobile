@@ -1,8 +1,8 @@
 import * as DocumentPicker from "expo-document-picker";
 import * as Location from "expo-location";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
-import { medicines, pharmacies, sampleOrders } from "../mocks/pharmacyData";
+import { apiClient, pharmacyRepository } from "../data";
 import {
   AuthMode,
   CartItem,
@@ -20,16 +20,45 @@ export function usePharmaConnectApp() {
   const [query, setQuery] = useState("");
   const [pharmacyQuery, setPharmacyQuery] = useState("");
   const [selectedPharmacy, setSelectedPharmacy] = useState<Pharmacy | null>(null);
+  const [medicines, setMedicines] = useState<Medicine[]>(() => pharmacyRepository.listMedicines());
+  const [pharmacies, setPharmacies] = useState<Pharmacy[]>(() => pharmacyRepository.listPharmacies());
   const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>(sampleOrders);
+  const [orders, setOrders] = useState<Order[]>(() => pharmacyRepository.listOrders());
   const [paymentMode, setPaymentMode] = useState<PaymentMode>("pickup");
   const [locationEnabled, setLocationEnabled] = useState(false);
   const [prescriptionFile, setPrescriptionFile] = useState<string | null>(null);
 
-  const nearbyPharmacies = useMemo(
-    () => [...pharmacies].sort((a, b) => a.distanceKm - b.distanceKm),
-    []
-  );
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadInitialData() {
+      try {
+        const [nextMedicines, nextPharmacies, nextOrders] = await Promise.all([
+          apiClient.listMedicines(),
+          apiClient.listPharmacies(),
+          apiClient.listOrders()
+        ]);
+
+        if (!isMounted) return;
+        setMedicines(nextMedicines);
+        setPharmacies(nextPharmacies);
+        setOrders(nextOrders);
+      } catch {
+        if (!isMounted) return;
+        setMedicines(pharmacyRepository.listMedicines());
+        setPharmacies(pharmacyRepository.listPharmacies());
+        setOrders(pharmacyRepository.listOrders());
+      }
+    }
+
+    loadInitialData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const nearbyPharmacies = pharmacies;
 
   const filteredMedicines = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -40,18 +69,19 @@ export function usePharmaConnectApp() {
         value.toLowerCase().includes(normalized)
       )
     );
-  }, [query]);
+  }, [medicines, query]);
 
   const filteredPharmacies = useMemo(() => {
     const normalized = pharmacyQuery.trim().toLowerCase();
-    if (!normalized) return nearbyPharmacies;
+    const sortedPharmacies = [...pharmacies].sort((a, b) => a.distanceKm - b.distanceKm);
+    if (!normalized) return sortedPharmacies;
 
-    return nearbyPharmacies.filter((pharmacy) =>
-      [pharmacy.name, pharmacy.area, pharmacy.address].some((value) =>
+    return sortedPharmacies.filter((pharmacy) =>
+      [pharmacy.name, pharmacy.area, pharmacy.address, pharmacy.phone].some((value) =>
         value.toLowerCase().includes(normalized)
       )
     );
-  }, [nearbyPharmacies, pharmacyQuery]);
+  }, [pharmacies, pharmacyQuery]);
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -118,25 +148,40 @@ export function usePharmaConnectApp() {
     );
   }
 
-  function placeOrder() {
+  async function placeOrder() {
     if (cart.length === 0) {
       Alert.alert("Panier vide", "Ajoutez au moins un produit avant de valider.");
       return;
     }
 
-    const pharmacyNames = Array.from(new Set(cart.map((item) => item.pharmacy.name))).join(", ");
-    const newOrder: Order = {
-      id: "CMD-" + Math.floor(1000 + Math.random() * 9000),
-      pharmacyName: pharmacyNames,
-      status: "pending",
-      total: cartTotal,
-      paymentMode,
-      pickupCode: "PC-" + Math.floor(1000 + Math.random() * 9000)
-    };
+    try {
+      const newOrder = await apiClient.createOrder({
+        paymentMode,
+        items: cart.map((item) => ({
+          medicineId: item.medicine.id,
+          pharmacyId: item.pharmacy.id,
+          quantity: item.quantity
+        }))
+      });
 
-    setOrders((current) => [newOrder, ...current]);
-    setCart([]);
-    setActiveTab("orders");
+      setOrders((current) => [newOrder, ...current]);
+      setCart([]);
+      setActiveTab("orders");
+    } catch {
+      const pharmacyNames = Array.from(new Set(cart.map((item) => item.pharmacy.name))).join(", ");
+      const newOrder: Order = {
+        id: "CMD-" + Math.floor(1000 + Math.random() * 9000),
+        pharmacyName: pharmacyNames,
+        status: "pending",
+        total: cartTotal,
+        paymentMode,
+        pickupCode: "PC-" + Math.floor(1000 + Math.random() * 9000)
+      };
+
+      setOrders((current) => [newOrder, ...current]);
+      setCart([]);
+      setActiveTab("orders");
+    }
   }
 
   function selectPharmacyForSearch(pharmacy: Pharmacy) {
@@ -144,8 +189,15 @@ export function usePharmaConnectApp() {
     setActiveTab("search");
   }
 
-  function requestPrescriptionQuote(pharmacy: Pharmacy) {
+  async function requestPrescriptionQuote(pharmacy: Pharmacy) {
     setSelectedPharmacy(pharmacy);
+    await apiClient
+      .requestPrescriptionQuote({
+        pharmacyId: pharmacy.id,
+        fileName: prescriptionFile
+      })
+      .catch(() => null);
+
     Alert.alert(
       "Demande envoyee",
       pharmacy.name + " recevra votre ordonnance pour verifier prix et disponibilite."
@@ -162,7 +214,10 @@ export function usePharmaConnectApp() {
       isAuthed,
       authMode,
       setAuthMode,
-      login: () => setIsAuthed(true),
+      login: async () => {
+        await apiClient.login("client@pharmaconnect.local", "password").catch(() => null);
+        setIsAuthed(true);
+      },
       logout
     },
     navigation: {

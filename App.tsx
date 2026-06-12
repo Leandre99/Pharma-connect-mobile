@@ -1,4 +1,4 @@
-import { AppShell } from "./src/app/AppShell";
+import { AppShell } from "./src/core/AppShell";
 
 export default function App() {
   return <AppShell />;

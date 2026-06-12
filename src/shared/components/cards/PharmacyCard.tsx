@@ -16,10 +16,11 @@ export function PharmacyCard({ pharmacy, onPress }: PharmacyCardProps) {
       </View>
       <View style={styles.flex}>
         <Text style={styles.cardTitle}>{pharmacy.name}</Text>
-        <Text style={styles.muted}>{pharmacy.address}</Text>
+        <Text style={styles.muted}>{pharmacy.address} · {pharmacy.phone}</Text>
         <View style={styles.metaRow}>
           <Text style={styles.metaText}>{pharmacy.distanceKm.toFixed(1)} km</Text>
           <Text style={styles.metaText}>Ouvert jusqu'a {pharmacy.openUntil}</Text>
+          {pharmacy.isOnDuty && <Text style={styles.metaText}>Garde</Text>}
           <Text style={styles.metaText}>{pharmacy.rating.toFixed(1)}</Text>
         </View>
       </View>
